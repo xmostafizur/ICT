@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC 2025 Math Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        #login-container,
+        #quiz-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input[type="text"],
+        input[type="password"] {
+            margin: 10px 0;
+            padding: 10px;
+            width: calc(100% - 22px);
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+        .correct {
+            background-color: #d4edda;
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+            color: red;
+            font-weight: bold;
+        }
+        #result {
+            margin: 20px 0;
+        }
+        #buttons-container {
+            margin-top: 20px;
+        }
+        .quiz-option {
+            display: block;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .quiz-option:hover {
+            background-color: #e2e6ea;
+        }
+        .quiz-option input {
+            margin-right: 10px;
+        }
+        #prev-btn, #submit-btn, #next-quiz-btn {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container">
+        <h1>Login</h1>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <div id="error-message" class="error"></div>
+        </form>
+    </div>
+
+    <div id="quiz-container" style="display: none;">
+        <h1>SSC 2025 Math Quiz</h1>
+        <div id="quiz"></div>
+        <div id="buttons-container">
+            <button id="prev-btn" onclick="goBack()">পিছনে</button>
+            <button id="submit-btn" onclick="checkAnswer()">জমা দিন</button>
+        </div>
+        <h2 id="result"></h2>
+        <button id="next-quiz-btn" style="display:none;" onclick="loadNextQuiz()">পরবতী কুইজ</button>
+    </div>
+
+   <script>
+    const quiz = [
+        { question: "1. কম্পিউটারের আবিষ্কারক কে?", options: ["চার্লস ব্যাবেজ", "আইজ্যাক নিউটন", "গ্যালিলিও গ্যালিলি", "মার্ক জাকারবার্গ"], answer: 0 },
+        { question: "2. RAM-এর পুরো অর্থ কী?", options: ["Read Access Memory", "Random Access Memory", "Rapid Action Memory", "Real-Time Access Memory"], answer: 1 },
+        { question: "3. কম্পিউটারের প্রধান মেমোরি কাকে বলে?", options: ["RAM", "ROM", "CD", "Pen Drive"], answer: 0 },
+        { question: "4. কম্পিউটারের প্রথম প্রজন্মে কোন উপাদান ব্যবহার করা হতো?", options: ["ভ্যাকিউম টিউব", "ট্রানজিস্টর", "মাইক্রোপ্রসেসর", "ইন্টিগ্রেটেড সার্কিট"], answer: 0 },
+        { question: "5. ইন্টারনেটের প্রোটোকল কোনটি?", options: ["HTTP", "HTML", "CSS", "Java"], answer: 0 },
+        { question: "6. কম্পিউটারের ফাইল এক্সটেনশন '.doc' কিসের জন্য ব্যবহৃত হয়?", options: ["Word Document", "Excel Spreadsheet", "PowerPoint", "PDF"], answer: 0 },
+        { question: "7. মাইক্রোসফটের প্রতিষ্ঠাতা কে?", options: ["বিল গেটস", "স্টিভ জবস", "মার্ক জাকারবার্গ", "ল্যারি পেজ"], answer: 0 },
+        { question: "8. সফটওয়্যার কাকে বলে?", options: ["হার্ডওয়্যার", "অপারেটিং সিস্টেম", "ইনপুট ডিভাইস", "মেমোরি"], answer: 1 },
+        { question: "9. ডেটাবেস ব্যবস্থাপনার জন্য কোন সফটওয়্যার ব্যবহৃত হয়?", options: ["MS Access", "MS Word", "Photoshop", "Paint"], answer: 0 },
+        { question: "10. CPU-এর পুরো অর্থ কী?", options: ["Central Processing Unit", "Central Power Unit", "Central Program Unit", "Central Processor Unit"], answer: 0 },
+        { question: "11. কম্পিউটারের ইন্টারফেস কি?", options: ["সংশ্লিষ্টতার নিয়ম", "দুইটি সিস্টেমের মধ্যে সংযোগ", "কোডিং প্রক্রিয়া", "ওয়েবসাইট তৈরি"], answer: 1 },
+        { question: "12. কম্পিউটার ভাইরাস কী?", options: ["একটি প্রোগ্রাম", "একটি ইনপুট ডিভাইস", "একটি মেমোরি", "একটি হার্ডওয়্যার"], answer: 0 },
+        { question: "13. ইন্টারনেটের প্রতিষ্ঠাতা কে?", options: ["টিম বার্নার্স-লি", "বিল গেটস", "মার্ক জাকারবার্গ", "স্টিভ জবস"], answer: 0 },
+        { question: "14. কম্পিউটারের কোন ডিভাইস আউটপুট ডিভাইস হিসেবে ব্যবহৃত হয়?", options: ["প্রিন্টার", "কিবোর্ড", "মাউস", "সিপিইউ"], answer: 0 },
+        { question: "15. বেসিক লজিক গেট কোনটি?", options: ["AND, OR, NOT", "YES, NO, STOP", "IF, ELSE, END", "PRINT, INPUT, SAVE"], answer: 0 },
+        { question: "16. কম্পিউটার নেটওয়ার্কের প্রধান উপাদান কোনটি?", options: ["রাউটার", "মাউস", "কীবোর্ড", "মাইক্রোফোন"], answer: 0 },
+        { question: "17. সফটওয়্যার কি ধরনের প্রযুক্তি?", options: ["প্রোগ্রাম", "হার্ডওয়্যার", "ইলেকট্রনিক সার্কিট", "ডাটা"], answer: 0 },
+        { question: "18. কোনটি অপারেটিং সিস্টেম?", options: ["Windows", "MS Word", "Photoshop", "Excel"], answer: 0 },
+        { question: "19. ইন্টারনেটের মাধ্যমে ডেটা ট্রান্সফার কোন প্রোটোকল ব্যবহৃত হয়?", options: ["TCP/IP", "RAM", "ROM", "HTTP"], answer: 0 },
+        { question: "20. ফ্লোচার্ট কি?", options: ["প্রবাহের ডায়াগ্রাম", "কোডিং প্রক্রিয়া", "কম্পাইলার", "ডেটা প্রসেসিং"], answer: 0 },
+        { question: "21. ফটোশপ কোন ধরনের সফটওয়্যার?", options: ["গ্রাফিক্স ডিজাইন", "ডেটাবেস", "ওয়ার্ড প্রসেসিং", "অপারেটিং সিস্টেম"], answer: 0 },
+        { question: "22. LAN-এর পুরো অর্থ কী?", options: ["Local Area Network", "Large Area Network", "Long Access Network", "Last Access Node"], answer: 0 },
+        { question: "23. কোনটি ইনপুট ডিভাইস?", options: ["কিবোর্ড", "প্রিন্টার", "মনিটর", "স্পিকার"], answer: 0 },
+        { question: "24. ইন্টারনেট প্রোটোকল IP-এর পূর্ণরূপ কি?", options: ["Internet Protocol", "Internal Process", "International Platform", "Indexed Page"], answer: 0 },
+        { question: "25. GUI-এর পূর্ণরূপ কি?", options: ["Graphical User Interface", "General User Interaction", "Generated User Info", "Global User Interface"], answer: 0 },
+        { question: "26. HTML-এর পূর্ণরূপ কি?", options: ["Hypertext Markup Language", "Hyperlink Text Mark Language", "Hyperlinking Text Module", "High Text Markup Language"], answer: 0 },
+        { question: "27. সফটওয়্যারকে কত ভাগে ভাগ করা যায়?", options: ["২ ভাগে", "৩ ভাগে", "৪ ভাগে", "৫ ভাগে"], answer: 0 },
+        { question: "28. কম্পিউটারের দ্রুততা মাপার একক কি?", options: ["মেগাহার্টজ", "মেগাবাইট", "গিগাবাইট", "টেরাবাইট"], answer: 0 },
+        { question: "29. এক্সেলের প্রধান ফাইল এক্সটেনশন কি?", options: [".xlsx", ".docx", ".pptx", ".pdf"], answer: 0 },
+        { question: "30. সফটওয়্যার লাইসেন্স কী?", options: ["ব্যবহারের অনুমতি", "ফ্রি সফটওয়্যার", "হার্ডওয়্যার ক্রয়", "ওয়েব হোস্টিং"], answer: 0 }
+    ];
+</script>
+
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let selectedAnswers = [];
+        let wrongAnswers = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginContainer = document.getElementById('login-container');
+            const quizContainer = document.getElementById('quiz-container');
+
+            if (sessionStorage.getItem('loggedIn')) {
+                loginContainer.style.display = 'none';
+                quizContainer.style.display = 'block';
+                loadQuestion(currentQuestionIndex);
+            }
+
+            document.getElementById('login-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                if (username === 'nasrin' && password === 'ssc2025') {
+                    sessionStorage.setItem('loggedIn', 'true');
+                    loginContainer.style.display = 'none';
+                    quizContainer.style.display = 'block';
+                    loadQuestion(currentQuestionIndex);
+                } else {
+                    document.getElementById('error-message').textContent = 'Invalid username or password';
+                }
+            });
+        });
+
+        function loadQuestion(index) {
+            const question = quiz[index];
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = `
+                <h3>${question.question}</h3>
+                ${question.options.map((option, i) => `
+                    <label class="quiz-option">
+                        <input type="radio" name="option" value="${i}"> ${option}
+                    </label>
+                `).join('')}
+            `;
+        }
+
+        function checkAnswer() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            
+            if (selectedOption) {
+                const answer = parseInt(selectedOption.value);
+                const correctAnswer = quiz[currentQuestionIndex].answer;
+                
+                selectedAnswers[currentQuestionIndex] = answer;
+
+                if (answer === correctAnswer) {
+                    correctAnswers++;
+                } else {
+                    wrongAnswers.push(currentQuestionIndex + 1);
+                }
+                
+                highlightAnswers();
+                
+                if (currentQuestionIndex < quiz.length - 1) {
+                    setTimeout(() => {
+                        currentQuestionIndex++;
+                        loadQuestion(currentQuestionIndex);
+                    }, 1000);
+                } else {
+                    showFinalResult();
+                }
+            } else {
+                alert('Please select an option!');
+            }
+        }
+
+        function highlightAnswers() {
+            const labels = document.querySelectorAll('.quiz-option');
+            const correctAnswer = quiz[currentQuestionIndex].answer;
+
+            labels.forEach((label, index) => {
+                if (index === correctAnswer) {
+                    label.classList.add('correct');
+                } else if (selectedAnswers[currentQuestionIndex] === index) {
+                    label.classList.add('incorrect');
+                }
+            });
+        }
+
+        function showFinalResult() {
+            const resultContainer = document.getElementById('result');
+            const nextQuizBtn = document.getElementById('next-quiz-btn');
+
+            if (correctAnswers === quiz.length) {
+                resultContainer.innerHTML = `
+                    Congratulations 🎉
+                    <br>সঠিক উত্তরের সংখ্যা: ${correctAnswers}
+                `;
+                nextQuizBtn.style.display = 'block';
+            } else {
+                resultContainer.innerHTML = `
+                    😓 তুমি সব সঠিক উত্তর দিতে পারো নাই তাই আবার চেষ্টা করো
+                    <br>ভুল উত্তরগুলোর সংখ্যা: ${wrongAnswers.length}
+                    <br>ভুল উত্তরগুলি: ${wrongAnswers.join(', ')}
+                `;
+                nextQuizBtn.style.display = 'none';
+            }
+        }
+
+        function loadNextQuiz() {
+            // Load next quiz or handle further logic
+        }
+
+        function goBack() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+                highlightAnswers();
+                document.getElementById('result').innerHTML = '';
+            } else {
+                alert('This is the first question.');
+            }
+        }
+    </script>
+</body>
+</html>
